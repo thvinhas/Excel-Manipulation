@@ -10,13 +10,15 @@ use \PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 class Excel {
     private $file;
+    private $type;
     private $worksheet;
     private $xls;
 
 
-    public function __construct($file) {
+    public function __construct($file, $type) {
         $this->file = $file;
         $this->xls = new Xlsx();
+        $this->type = $type;
         
     }
 
@@ -29,8 +31,8 @@ class Excel {
 }
         $teste =  $this->xls->load($this->file);
         $this->worksheet = $teste->getActiveSheet();
-        $dataArray = $this->worksheet->toArray();
 
-        var_dump($dataArray);
+
+        var_dump( $this->worksheet);
     }
 }
