@@ -3,10 +3,10 @@
 namespace src;
 require '../vendor/autoload.php';
 
-use PhpOffice\PhpSpreadsheet\Reader\Csv;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use \PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Excel {
     private $file;
@@ -17,7 +17,6 @@ class Excel {
 
     public function __construct($file, $type) {
         $this->file = $file;
-        $this->xls = new Xlsx();
         $this->type = $type;
         
     }
@@ -25,14 +24,24 @@ class Excel {
     public function readFile () {
         $extension = pathinfo($this->file, PATHINFO_EXTENSION);
         if('csv' == $extension) {
-            $this->xls = new Csv();
+            $test = IOFactory::load($this->file);
+            $worksheet = $test->getActiveSheet();
+            $worksheet->removeColumn('A');
+            $writer =  new Csv($test);
+            $writer->save($this->file);
         } else if('xls' == $extension) {
-            $this->xls = new Xls();
-}
-        $teste =  $this->xls->load($this->file);
-        $this->worksheet = $teste->getActiveSheet();
+            $test = IOFactory::load($this->file);
+            $worksheet = $test->getActiveSheet();
+            $worksheet->removeColumn('A');
+            $writer = new Xlsx($test);
+            $writer->save($this->file);
 
+        }
+//        $file =  $this->xls->load($this->file);
 
-        var_dump( $this->worksheet);
+//        if ($this->type === "AIB") {
+//            $aib = new AibExcel($file);
+//            $aib->manipulateAib();
+//        }
     }
 }
