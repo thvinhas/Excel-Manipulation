@@ -24,17 +24,44 @@ class Excel {
     public function readFile () {
         $extension = pathinfo($this->file, PATHINFO_EXTENSION);
         if('csv' == $extension) {
-            $test = IOFactory::load($this->file);
-            $worksheet = $test->getActiveSheet();
+            $csv = IOFactory::load($this->file);
+            $worksheet = $csv->getActiveSheet();
             $worksheet->removeColumn('A');
-            $writer =  new Csv($test);
+            $worksheet->removeColumn('E');
+            $worksheet->insertNewColumnBefore('C', 1) ->setCellValue('C0', "Valor");
+
+            foreach ($worksheet->getRowIterator() as $row) {
+                $i = 1;
+                $cellIterator = $row->getCellIterator();
+                foreach ($cellIterator as $key =>$cell) {
+                        if ($key == "C") {
+                           if(!empty($worksheet->getCell("D". $i)->getValue())){
+                               $worksheet->setCellValue("c".$i, "-".$worksheet->getCell("D". $i)->getValue());
+                           }else {
+                               $worksheet->setCellValue("c".$i, "".$worksheet->getCell("E". $i)->getValue());
+                           }
+                        }
+                }
+                $i++;
+            }
+
+
+            echo '<table>' . PHP_EOL;
+            foreach ($worksheet->getRowIterator() as $row) {
+                echo '<tr>' . PHP_EOL;
+                $cellIterator = $row->getCellIterator();
+                foreach ($cellIterator as $key =>$cell) {
+                    echo '<td>' .
+                        $key . "=" .$cell->getValue() .
+                        '</td>' . PHP_EOL;
+                }
+                echo '</tr>' . PHP_EOL;
+            }
+            echo '</table>' . PHP_EOL;
+            $writer =  new Csv($csv);
             $writer->save($this->file);
         } else if('xls' == $extension) {
-            $test = IOFactory::load($this->file);
-            $worksheet = $test->getActiveSheet();
-            $worksheet->removeColumn('A');
-            $writer = new Xlsx($test);
-            $writer->save($this->file);
+
 
         }
 //        $file =  $this->xls->load($this->file);
