@@ -9,31 +9,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Excel {
-    private $file;
-    private $type;
-    private $worksheet;
-    private $xls;
 
-
-    public function __construct($file, $type) {
-        $this->file = $file;
-        $this->type = $type;
-        
-    }
-
-    public function readFile () {
-
-        if('AIB' == $this->type) {
-            $this->AIBFile();
-        } else {
-            $this->RevolutFile();
-        }
-    }
-
-
-    public function AIBFile()
+    public function AIBFile($file)
     {
-        $csv = IOFactory::load($this->file);
+        $csv = IOFactory::load($file);
         $worksheet = $csv->getActiveSheet();
         $worksheet->removeColumn('h');
         $worksheet->removeColumn('G');
@@ -55,24 +34,13 @@ class Excel {
         $worksheet->removeColumn('F');
         $worksheet->removeColumn('E');
         $worksheet->removeColumn('A');
-
-
-        echo '<table>' . PHP_EOL;
-        foreach ($worksheet->getRowIterator() as $row) {
-            echo '<tr>' . PHP_EOL;
-            $cellIterator = $row->getCellIterator();
-            foreach ($cellIterator as $key =>$cell) {
-                echo '<td>' .
-                    $key . "=" .$cell->getValue() .
-                    '</td>' . PHP_EOL;
-            }
-            echo '</tr>' . PHP_EOL;
-        }
+        $writer = new Csv($csv);
+        $writer->save($file);
     }
 
-    public function RevolutFile()
+    public function RevolutFile($file)
     {
-        $csv = IOFactory::load($this->file);
+        $csv = IOFactory::load($file);
         $worksheet = $csv->getActiveSheet();
         $worksheet->removeColumn('J');
         $worksheet->removeColumn('I');
@@ -97,6 +65,22 @@ class Excel {
             $worksheet->removeRow($line);
         }
         $worksheet->removeColumn('A');
+        $writer = new Csv($csv);
+        $writer->save($file);
+    }
+
+    public function create_excel($Aib, $revolut)
+    {
+        $file = "Planilha_modelo_de_importação.xlsx";
+        $xls = IOFactory::load($file);
+        $worksheet = $xls->getActiveSheet();
+        $worksheet->removeRow(2, $worksheet->getHighestRow());
+        $Aibcsv = IOFactory::load($Aib);
+        $worksheetAib = $xls->getActiveSheet();
+
+        $Revolutcsv = IOFactory::load($revolut);
+        $worksheetRevolut = $xls->getActiveSheet();
+
         echo '<table>' . PHP_EOL;
         foreach ($worksheet->getRowIterator() as $key_row => $row) {
             echo '<tr>' . PHP_EOL;
@@ -109,9 +93,10 @@ class Excel {
             }
             echo '</tr>' . PHP_EOL;
         }
-
         echo '</table>' . PHP_EOL;
-        $writer = new Csv($csv);
-        $writer->save($this->file);
+
+        $writer = new Xlsx($xls);
+        $writer->save($file);
+
     }
 }

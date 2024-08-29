@@ -2,22 +2,29 @@
 namespace src;
 require '../vendor/autoload.php';
 
-use src\Excel;
 
 $target_dir = "../upload/";
-$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-$uploadOk = 1;
-$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-$type = $_POST['type'];
+$target_fileAIB = $target_dir . "AIB.csv";
+$target_fileRevolut = $target_dir . "Revolut.csv";
 
-if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+$excel = new Excel();
 
-    $excel = new Excel($target_file, $type);
-    $excel->readFile();
-    echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
+if (move_uploaded_file($_FILES["fileToUploadAib"]["tmp_name"], $target_fileAIB)) {
+    $excel->AIBFile($target_fileAIB);
+    echo "The file ". htmlspecialchars( basename( $_FILES["fileToUploadAib"]["name"])). " has been uploaded.";
   } else {
     echo "Sorry, there was an error uploading your file.";
   }
+
+if (move_uploaded_file($_FILES["fileToUploadRevolut"]["tmp_name"], $target_fileRevolut)) {
+    $excel->RevolutFile($target_fileRevolut);
+    echo "The file ". htmlspecialchars( basename( $_FILES["fileToUploadRevolut"]["name"])). " has been uploaded.";
+} else {
+    echo "Sorry, there was an error uploading your file.";
+}
+$excel->create_excel();
+
+
 
 
 
