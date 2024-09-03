@@ -22,7 +22,7 @@ if (move_uploaded_file($_FILES["fileToUploadRevolut"]["tmp_name"], $target_fileR
 } else {
     echo "Sorry, there was an error uploading your file.";
 }
-$excel->create_excel();
+$excel->create_excel($target_fileAIB, $target_fileRevolut);
 
 
 

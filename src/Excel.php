@@ -76,10 +76,22 @@ class Excel {
         $worksheet = $xls->getActiveSheet();
         $worksheet->removeRow(2, $worksheet->getHighestRow());
         $Aibcsv = IOFactory::load($Aib);
-        $worksheetAib = $xls->getActiveSheet();
+        $worksheetAib = $Aibcsv->getActiveSheet();
 
         $Revolutcsv = IOFactory::load($revolut);
-        $worksheetRevolut = $xls->getActiveSheet();
+        $worksheetRevolut = $Revolutcsv->getActiveSheet();
+
+
+        foreach ($worksheetAib->getRowIterator() as $key_row => $row) {
+            $cellIterator = $row->getCellIterator();
+            if ($key_row == 1) {
+                continue;
+            }
+            foreach ($cellIterator as $key => $cell) {
+                echo $cell->getValue();
+                    $worksheet->setCellValue($key . $key_row,  $cell->getValue());
+            }
+        }
 
         echo '<table>' . PHP_EOL;
         foreach ($worksheet->getRowIterator() as $key_row => $row) {
