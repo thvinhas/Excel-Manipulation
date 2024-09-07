@@ -1,14 +1,6 @@
 import config from '../config/categorias_config.json' with { type: "json" };
-
-// Inicializar as promessas para as tabelas
-let aibPromise;
-let revolutPromise;
-
-document.getElementById("form").addEventListener('submit', formValidation);
-
-const readerAib = new FileReader();
-const readerRevolut = new FileReader();
 let finalvalue = [];
+let last_upload = null;
 
 // Função que será chamada quando ambos os arquivos forem processados
 function onFinalValueReady() {
@@ -38,54 +30,54 @@ title: ''
 }
 
 // Modificar formValidation para resolver as promessas
-function formValidation(e) {
-    e.preventDefault();
-    let file1 = e.target.elements.arquivos.files[0]
-    let file2 = e. target.elements.arquivos.files[1];
 
-    // Lê o arquivo AIB e cria a promessa
-    aibPromise = new Promise((resolve, reject) => {
-        readerAib.onload = function (event) {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            let json = XLSX.utils.sheet_to_json(firstSheet);
-            if (json[0].hasOwnProperty("Posted Currency")) {
-                generatetableAib(json);
-            }else {
-                generatetableRevolut(json);
-            }
-            resolve(); // Resolva a promessa ao concluir
-        };
-        readerAib.onerror = reject; // Em caso de erro
-        readerAib.readAsArrayBuffer(file1);
+    document.getElementById('form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evita o envio do formulário padrão
+    
+        const files = e.target.elements.arquivos.files; // Obtém todos os arquivos selecionados
+        last_upload = e.target.elements.last_upload.value;
+        if (files.length === 0) {
+            alert('Por favor, selecione pelo menos um arquivo.');
+            return;
+        }
+    
+        // Cria uma lista de promessas para cada arquivo
+        const filePromises = Array.from(files).map(file => processFile(file));
+    
+        // Quando todas as promessas forem resolvidas, chama a função
+        Promise.all(filePromises)
+            .then(() => {
+                onFinalValueReady(); // Chama a função quando todos os arquivos forem processados
+            })
+            .catch(error => console.error("Erro ao processar os arquivos:", error));
     });
 
-    // Lê o arquivo Revolut e cria a promessa
-    revolutPromise = new Promise((resolve, reject) => {
-        readerRevolut.onload = function (event) {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            let json = XLSX.utils.sheet_to_json(firstSheet);
-            if (json[0].hasOwnProperty("Posted Currency")) {
-                generatetableAib(json);
-            }else {
-                generatetableRevolut(json);
-            }
-            resolve(); // Resolva a promessa ao concluir
-        };
-        readerRevolut.onerror = reject; // Em caso de erro
-        readerRevolut.readAsArrayBuffer(file2);
-    });
 
-    // Quando ambas as promessas forem resolvidas, chamar a função
-    Promise.all([aibPromise, revolutPromise])
-        .then(() => {
-            onFinalValueReady(); // Chama a função quando ambos os arquivos forem processados
-        })
-        .catch(error => console.error("Erro ao processar os arquivos:", error));
-}
+ 
+        // Função para processar cada arquivo
+        function processFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+    
+                reader.onload = function(event) {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet);
+    
+                    // Verifica se o arquivo é do tipo AIB ou Revolut
+                    if (json[0].hasOwnProperty("Posted Currency")) {
+                        generatetableAib(json);
+                    } else {
+                        generatetableRevolut(json);
+                    }
+                    resolve(); // Resolva a promessa ao concluir
+                };
+    
+                reader.onerror = reject; // Em caso de erro
+                reader.readAsArrayBuffer(file);
+            });
+        }
 
 // Funções para gerar tabelas (mantidas as mesmas, com finalvalue sendo preenchido)
 function generatetableAib(value) {
@@ -97,6 +89,10 @@ function generatetableAib(value) {
         let descricao = cleanDescription(data[' Description1']);
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Transaction Type'] == "Debit" ? `-${data[" Debit Amount"]}` : data[" Credit Amount"];
+
+        if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
+            return;
+        }
 
         if (isTransferencia(descricao, transferenciasShow) && data['Transaction Type'] == "Debit") {
             let transefersDiv = document.getElementById('trasnfers');
@@ -121,7 +117,11 @@ function generatetableRevolut(value) {
         let dataTransacao = excelDateToJSDate(data['Started Date']);
         let descricao = cleanDescription(data['Description']);
         let categoria = foundCategory(descricao, categoriasConfig);
-        let valor = data['Amount']
+        let valor = data['Amount'];
+
+        if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
+            return;
+        }
 
         if (isTransferencia(descricao, transferenciasShow)) {
             let transefersDiv = document.getElementById('trasnfers');
@@ -135,6 +135,12 @@ function generatetableRevolut(value) {
 
         finalvalue.push([dataTransacao, descricao, valor, 'Revolut', categoria]);
     });
+}
+
+function checkIfTracaoIsMenor(dataTransacao, last_upload) {
+    let [day, month, year] = dataTransacao.split('/')
+    let dateObj = new Date(+year, +month - 1, +day)       
+    return dateObj < last_upload;
 }
 
 function excelDateToJSDate(serial) {

@@ -17,11 +17,13 @@
         <div class="upload-section">
             <label for="arquivos">Selecione os arquivos CSV:</label>
             <input type="file" name="arquivos" id="arquivos" multiple required><br><br>
+            
+            <!-- Campo para mostrar a data do último upload -->
+            <label for="last_upload">Último Upload:</label>
+            <input type="date" id="last_upload"><br><br>
+            
+            <button type="submit">Processar Arquivos</button>
         </div>
-    
-        <button type="submit">Processar Arquivos</button>
-    
-        <div class="progress-bar" id="progress-bar"></div>
     </form>
     
     <div id="trasnfers"></div>
