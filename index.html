@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivos CSV</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.dataTables.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+    <h1>Upload de Arquivos CSV</h1>
+
+    <form id="form" enctype="multipart/form-data">
+        <div class="upload-section">
+            <label for="arquivos">Selecione os arquivos CSV:</label>
+            <input type="file" name="arquivos" id="arquivos" multiple required><br><br>
+        </div>
+    
+        <button type="submit">Processar Arquivos</button>
+    
+        <div class="progress-bar" id="progress-bar"></div>
+    </form>
+    
+    <div id="trasnfers"></div>
+    
+    <table id="example" class="display" width="100%"></table>
+    
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdn.datatables.net/2.1.5/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.dataTables.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+<script type="module" src="./src/processar.js"></script>
+
+</body>
+</html>

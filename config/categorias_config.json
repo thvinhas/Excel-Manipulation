@@ -1,0 +1,71 @@
+{
+  "categorias": {
+    "Brasil": [
+      "OUTRA DESCRICAO 2",
+      "COMPANHIA AEREA"
+    ],
+    "Casal": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Despesas diárias": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Educação": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Presentes": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Saúde": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Tecnologia": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Viagens": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+
+    "Investimentos": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Outros": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Pagamento despesas": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Prêmios": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Presente": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Salário": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ],
+    "Transporte": [
+      "SUPERMERCADO",
+      "LOJA DE ROUPAS"
+    ]
+  },
+  "transferencias_show": [
+    "DONT TOUCH-1"
+  ],
+  "transferencias_remove": [
+    "Apple Pay Top-Up by *2439"
+  ]
+}
