@@ -6,11 +6,13 @@
     ],
     "Casal": [
       "SUPERMERCADO",
-      "LOJA DE ROUPAS"
+      "HOUSE"
     ],
     "Despesas diárias": [
-      "SUPERMERCADO",
-      "LOJA DE ROUPAS"
+      "THE BUTTON FA",
+      "DELIVEROO",
+      "BARBER",
+      "HOLOHANFITNESS"
     ],
     "Educação": [
       "SUPERMERCADO",
@@ -25,8 +27,8 @@
       "LOJA DE ROUPAS"
     ],
     "Tecnologia": [
-      "SUPERMERCADO",
-      "LOJA DE ROUPAS"
+      "WINDSCRIBE.COM",
+      "GOOGLE *Google"
     ],
     "Viagens": [
       "SUPERMERCADO",
@@ -54,16 +56,18 @@
       "LOJA DE ROUPAS"
     ],
     "Salário": [
-      "SUPERMERCADO",
+      "BARDEN",
       "LOJA DE ROUPAS"
     ],
     "Transporte": [
-      "SUPERMERCADO",
+      "LEAP CARD APP",
       "LOJA DE ROUPAS"
     ]
   },
   "transferencias_show": [
-    "DONT TOUCH-1"
+    "DONT TOUCH-1",
+    "SAVINGS",
+    "Revolut**7081*"
   ],
   "transferencias_remove": [
     "Apple Pay Top-Up by *2439",
