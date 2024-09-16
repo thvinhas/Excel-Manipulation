@@ -98,7 +98,7 @@ function generatetableAib(value) {
             return;
         }
 
-        if (isTransferencia(descricao, transferenciasShow) && data['Transaction Type'] == "Debit") {
+        if (isTransferencia(descricao, transferenciasShow)) {
             let transefersDiv = document.getElementById('trasnfers');
 
             let text = `Transferência do AIB para: ${descricao}, data: ${dataTransacao}, valor: ${valor}`;
@@ -193,10 +193,10 @@ function cleanDescription(text) {
         return ''; // Se `text` não for uma string, retorna uma string vazia ou outro valor padrão
     }
 
-    let values = ['VDC', 'VDP', '*MOBI'];
+    let values = ['VDC', 'VDP', '*MOBI', "VDA"] ;
     values.forEach(x => {
         text = text.replace(x, '');
     });
-    text = text.replace('-', '');
+    text = text.replace(/^-/, '');
     return text.trimStart();
 }
