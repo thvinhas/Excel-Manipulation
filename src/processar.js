@@ -61,15 +61,23 @@ title: ''
     
                 reader.onload = function(event) {
                     const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, { type: 'array',  raw: false , cellText: true});
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(firstSheet);
+                    const json = XLSX.utils.sheet_to_json(firstSheet,  );
+
+                    const correctedJson = json.map(row => {
+                        Object.keys(row).forEach(key => {
+                            row[key] = fixDateIfNecessary(row[key]); // Chama função para corrigir a data
+                        });
+                        return row;
+                    });
+
     
                     // Verifica se o arquivo é do tipo AIB ou Revolut
                     if (json[0].hasOwnProperty("Transaction Type")) {
-                        generatetableAib(json);
+                        generatetableAib(correctedJson);
                     } else {
-                        generatetableRevolut(json);
+                        generatetableRevolut(correctedJson);
                     }
                     resolve(); // Resolva a promessa ao concluir
                 };
@@ -90,7 +98,7 @@ function generatetableAib(value) {
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Transaction Type'] == "Debit" ? `-${data[" Debit Amount"]}` : data[" Credit Amount"];
 
-        if (valor === 0) {
+        if (valor == 0) {
             return;
         }
 
@@ -113,17 +121,34 @@ function generatetableAib(value) {
     });
 }
 
+function fixDateIfNecessary(value) {
+    // Verifica se o valor está no formato de data "MM/DD/YYYY" e converte para "DD/MM/YYYY"
+    if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+        const [month, day, year] = value.split('/');
+        if (month > 12) {
+            // Se o mês for maior que 12, isso indica que está no formato DD/MM/YYYY correto
+            return `${day}/${month}/${year}`;
+        } else {
+            // Se o mês for menor que 12, inverte para o formato correto DD/MM/YYYY
+            return `${day}/${month}/${year}`;
+        }
+    }
+    // Se não for uma data ou não precisa ser corrigido, retorna o valor original
+    return value;
+}
+
+
 function generatetableRevolut(value) {
     let categoriasConfig = config.categorias;
     let transferenciasShow = config.transferencias_show;
     let transferenciasRemove = config.transferencias_remove;
     value.forEach(function(data) {
-        let dataTransacao = excelDateToJSDate(data['Started Date']);
+        let dataTransacao = dateFormat(data['Started Date']);
         let descricao = cleanDescription(data['Description']);
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Amount'];
 
-        if (valor === 0) {
+        if (valor == 0) {
             return;
         }
 
@@ -147,7 +172,7 @@ function generatetableRevolut(value) {
 
 function checkIfTracaoIsMenor(dataTransacao, last_upload) {
     let [day, month, year] = dataTransacao.split('/')
-    let dateObj = new Date(+year, +month - 1, +day)       
+    let dateObj = new Date("20"+year, +month - 1, +day)       
     return dateObj < last_upload;
 }
 
@@ -182,7 +207,7 @@ function foundCategory(description, categorias) {
 function dateFormat(date) {
     if (typeof date === 'string') {
         let [d, m, y] = date.split(/\D/);
-        return `${d}/${m}/${y}`;
+        return `${m}/${d}/${y}`;
     }else{
         const excelDate = new Date((date - (25567 + 2)) * 86400 * 1000);
         // Formata a data no formato correto (DD/MM/AAAA)
