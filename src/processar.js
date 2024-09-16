@@ -90,6 +90,10 @@ function generatetableAib(value) {
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Transaction Type'] == "Debit" ? `-${data[" Debit Amount"]}` : data[" Credit Amount"];
 
+        if (valor === 0) {
+            return;
+        }
+
         if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
             return;
         }
@@ -118,6 +122,10 @@ function generatetableRevolut(value) {
         let descricao = cleanDescription(data['Description']);
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Amount'];
+
+        if (valor === 0) {
+            return;
+        }
 
         if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
             return;
@@ -189,6 +197,6 @@ function cleanDescription(text) {
     values.forEach(x => {
         text = text.replace(x, '');
     });
-
+    text = text.replace('-', '');
     return text.trimStart();
 }
