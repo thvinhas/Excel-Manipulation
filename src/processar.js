@@ -177,9 +177,14 @@ function dateFormat(date) {
 }
 
 function cleanDescription(text) {
+    if (typeof text !== 'string') {
+        return ''; // Se `text` não for uma string, retorna uma string vazia ou outro valor padrão
+    }
+
     let values = ['VDC', 'VDP', '*MOBI'];
     values.forEach(x => {
         text = text.replace(x, '');
     });
+
     return text.trimStart();
 }
