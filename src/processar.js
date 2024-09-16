@@ -66,7 +66,7 @@ title: ''
                     const json = XLSX.utils.sheet_to_json(firstSheet);
     
                     // Verifica se o arquivo é do tipo AIB ou Revolut
-                    if (json[0].hasOwnProperty("Posted Currency")) {
+                    if (json[0].hasOwnProperty("Transaction Type")) {
                         generatetableAib(json);
                     } else {
                         generatetableRevolut(json);
