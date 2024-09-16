@@ -184,7 +184,12 @@ function dateFormat(date) {
         let [d, m, y] = date.split(/\D/);
         return `${d}/${m}/${y}`;
     }else{
-        return excelDateToJSDate(date);
+        const excelDate = new Date((date - (25567 + 2)) * 86400 * 1000);
+        // Formata a data no formato correto (DD/MM/AAAA)
+        const month = '0' + (excelDate.getDate()+1) ;
+        const day = ('0' + (excelDate.getMonth() + 1)).slice(-2);
+        const year = excelDate.getFullYear();
+        return `${day}/${month}/${year}`;
     }
 }
 
