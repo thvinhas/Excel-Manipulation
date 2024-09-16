@@ -86,7 +86,7 @@ function generatetableAib(value) {
     let transferenciasRemove = config.transferencias_remove;
     value.forEach(function(data) {
         let dataTransacao = dateFormat(data[' Posted Transactions Date']);
-        let descricao = cleanDescription(data[' Description1']);
+        let descricao = cleanDescription(data[' Description']);
         let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Transaction Type'] == "Debit" ? `-${data[" Debit Amount"]}` : data[" Credit Amount"];
 
