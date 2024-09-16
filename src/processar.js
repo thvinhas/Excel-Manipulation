@@ -172,8 +172,12 @@ function foundCategory(description, categorias) {
 }
 
 function dateFormat(date) {
-    let [d, m, y] = date.split(/\D/);
-    return `${d}/${m}/${y}`;
+    if (typeof date === 'string') {
+        let [d, m, y] = date.split(/\D/);
+        return `${d}/${m}/${y}`;
+    }else{
+        return excelDateToJSDate(date);
+    }
 }
 
 function cleanDescription(text) {
