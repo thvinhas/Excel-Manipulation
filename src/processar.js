@@ -63,21 +63,14 @@ title: ''
                     const data = new Uint8Array(event.target.result);
                     const workbook = XLSX.read(data, { type: 'array',  raw: false , cellText: true});
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(firstSheet,  );
-
-                    const correctedJson = json.map(row => {
-                        Object.keys(row).forEach(key => {
-                            row[key] = fixDateIfNecessary(row[key]); // Chama função para corrigir a data
-                        });
-                        return row;
-                    });
+                    const json = XLSX.utils.sheet_to_json(firstSheet, {raw: true } );
 
     
                     // Verifica se o arquivo é do tipo AIB ou Revolut
                     if (json[0].hasOwnProperty("Transaction Type")) {
-                        generatetableAib(correctedJson);
+                        generatetableAib(json);
                     } else {
-                        generatetableRevolut(correctedJson);
+                        generatetableRevolut(json);
                     }
                     resolve(); // Resolva a promessa ao concluir
                 };
@@ -89,85 +82,42 @@ title: ''
 
 // Funções para gerar tabelas (mantidas as mesmas, com finalvalue sendo preenchido)
 function generatetableAib(value) {
-    let categoriasConfig = config.categorias;
-    let transferenciasShow = config.transferencias_show;
-    let transferenciasRemove = config.transferencias_remove;
+
     value.forEach(function(data) {
-        let dataTransacao = dateFormat(data[' Posted Transactions Date']);
-        let descricao = cleanDescription(data[' Description']);
-        let categoria = foundCategory(descricao, categoriasConfig);
         let valor = data['Transaction Type'] == "Debit" ? `-${data[" Debit Amount"]}` : data[" Credit Amount"];
-
-        if (valor == 0) {
-            return;
-        }
-
-        if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
-            return;
-        }
-
-        if (isTransferencia(descricao, transferenciasShow)) {
-            let transefersDiv = document.getElementById('trasnfers');
-
-            let text = `Transferência do AIB para: ${descricao}, data: ${dataTransacao}, valor: ${valor}`;
-
-            transefersDiv.insertAdjacentHTML('afterend', `<p>${text}</p>`);
-            return; // Não insere na planilha final
-        }else if (isTransferencia(descricao, transferenciasRemove)) {
-            return;
-        }
-
-        finalvalue.push([dataTransacao, descricao, valor, 'AIB', categoria]);
+        generateTable(data[' Posted Transactions Date'], data[' Description'], valor, "AIB");
     });
 }
-
-function fixDateIfNecessary(value) {
-    // Verifica se o valor está no formato de data "MM/DD/YYYY" e converte para "DD/MM/YYYY"
-    if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-        const [month, day, year] = value.split('/');
-        if (month > 12) {
-            // Se o mês for maior que 12, isso indica que está no formato DD/MM/YYYY correto
-            return `${day}/${month}/${year}`;
-        } else {
-            // Se o mês for menor que 12, inverte para o formato correto DD/MM/YYYY
-            return `${day}/${month}/${year}`;
-        }
-    }
-    // Se não for uma data ou não precisa ser corrigido, retorna o valor original
-    return value;
-}
-
 
 function generatetableRevolut(value) {
+    value.forEach(function(data) {
+        generateTable(data['Started Date'], data['Description'], data['Amount'], "Revolut")
+    });
+}
+
+function generateTable (dataTransacao, descricao, valor, banco) {
     let categoriasConfig = config.categorias;
     let transferenciasShow = config.transferencias_show;
     let transferenciasRemove = config.transferencias_remove;
-    value.forEach(function(data) {
-        let dataTransacao = dateFormat(data['Started Date']);
-        let descricao = cleanDescription(data['Description']);
-        let categoria = foundCategory(descricao, categoriasConfig);
-        let valor = data['Amount'];
+     dataTransacao = dateFormat(dataTransacao,banco);
+     descricao = cleanDescription(descricao);
+    let categoria = foundCategory(descricao, categoriasConfig);
 
-        if (valor == 0) {
-            return;
-        }
+    if (valor == 0) {
+        return;
+    }
 
-        if (checkIfTracaoIsMenor(dataTransacao, new Date(last_upload))) {
-            return;
-        }
+    if (isTransferencia(descricao, transferenciasShow)) {
+        let transefersDiv = document.getElementById('trasnfers');
+        let text = `Transferência do ${banco} para: ${descricao}, data: ${dataTransacao}, valor: ${valor}`;
 
-        if (isTransferencia(descricao, transferenciasShow)) {
-            let transefersDiv = document.getElementById('trasnfers');
-            let text = `Transferência do Revolut para: ${descricao}, data: ${dataTransacao}, valor: ${valor}`;
+        transefersDiv.insertAdjacentHTML('afterend', `<p >${text}</p>`);
+        return; // Não insere na planilha final
+    }else if (isTransferencia(descricao, transferenciasRemove)) {
+        return;
+    }
 
-            transefersDiv.insertAdjacentHTML('afterend', `<p >${text}</p>`);
-            return; // Não insere na planilha final
-        }else if (isTransferencia(descricao, transferenciasRemove)) {
-            return;
-        }
-
-        finalvalue.push([dataTransacao, descricao, valor, 'Revolut', categoria]);
-    });
+    finalvalue.push([dataTransacao, descricao, valor, banco, categoria]);
 }
 
 function checkIfTracaoIsMenor(dataTransacao, last_upload) {
@@ -204,17 +154,22 @@ function foundCategory(description, categorias) {
     return categoria;
 }
 
-function dateFormat(date) {
+function dateFormat(date, type) {
     if (typeof date === 'string') {
         let [d, m, y] = date.split(/\D/);
-        return `${m}/${d}/${y}`;
+        return `${d}/${m}/${y}`;
     }else{
         const excelDate = new Date((date - (25567 + 2)) * 86400 * 1000);
         // Formata a data no formato correto (DD/MM/AAAA)
-        const month = '0' + (excelDate.getDate()+1) ;
-        const day = ('0' + (excelDate.getMonth() + 1)).slice(-2);
+        const day = excelDate.getDate().toString().padStart(2, "0");
+        const month = (excelDate.getMonth() +1).toString().padStart(2, "0");
         const year = excelDate.getFullYear();
-        return `${day}/${month}/${year}`;
+        if (type === 'Revolut') {
+            return `${day}/${month}/${year}`;
+        }else {
+            return `${month}/${day}/${year}`;
+
+        }
     }
 }
 
